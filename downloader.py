@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 
-def download_video(url, headers):
+def download_video(url, headers, filename):
     chrome_options = Options()
     chrome_options.add_argument("--headless") 
     driver = webdriver.Chrome(service=Service(r'chromedriver.exe'), options=chrome_options)
@@ -22,7 +22,7 @@ def download_video(url, headers):
         print(video_url)
         response = requests.get(video_url, headers=headers)
         if response.status_code - 200 < 100:
-            with open('downloaded_video.mp4', 'wb') as f:
+            with open(filename, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=1024):
                     f.write(chunk)
             print("Video downloaded successfully.")
