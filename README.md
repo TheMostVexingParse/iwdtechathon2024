@@ -14,11 +14,12 @@ requests library installed
 
 ## Usage
 
-* First, you need to run main.py
+* First, you must upload the plugin file to Google plugins and pin it to access.
+
+* Secondly, you need to run main.py
   ```bash
   python main.py
   ```
 
-* You need to get 3.id
-
-* 
+* Finally, you need to open interface
+  
