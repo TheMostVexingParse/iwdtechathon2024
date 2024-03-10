@@ -10,3 +10,12 @@ requests library installed
   python -m pip install -r requirements.txt
 
 ```
+
+
+## Usage
+
+* First, you need to run main.py 
+
+* 
+
+* (Checkout below image for the format of cookie ,It is Better to Use from network tab to grab cookie easily )
