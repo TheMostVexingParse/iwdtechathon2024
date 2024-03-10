@@ -7,22 +7,27 @@ from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+# chrome_options.binary_location = r"C:\Users\Computer\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe"
+driver = webdriver.Chrome(service=Service(r'chromedriver.exe'), options=chrome_options)
+
 def download_video(url, headers, filename):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless") 
-    driver = webdriver.Chrome(service=Service(r'chromedriver.exe'), options=chrome_options)
+    
     driver.get(url)
     time.sleep(5)  
     
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     video_tag = soup.find('video')
+
+    # driver.quit()
     
     if video_tag:
         video_url = video_tag['src']
         print(video_url)
         response = requests.get(video_url, headers=headers)
         if response.status_code - 200 < 100:
-            with open(filename, 'wb') as f:
+            with open(filename, 'wb+') as f:
                 for chunk in response.iter_content(chunk_size=1024):
                     f.write(chunk)
             print("Video downloaded successfully.")
@@ -31,8 +36,6 @@ def download_video(url, headers, filename):
             print(response)
     else:
         print("Video not found on the page.")
-
-    driver.quit()
 
 if __name__ == "__main__":
     url =  "https://www.instagram.com/reels/C4FMGCRKWyX/"

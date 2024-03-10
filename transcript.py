@@ -9,11 +9,11 @@ def getTranscipt(filename, output):
     video = mp.VideoFileClip(fname_split + ".mp4") 
     
     audio_file = video.audio 
-    audio_file.write_audiofile(output + ".wav") 
+    audio_file.write_audiofile(output) 
     
     r = sr.Recognizer() 
     
-    with sr.AudioFile(output + ".wav") as source: 
+    with sr.AudioFile(output) as source: 
         data = r.record(source) 
     
     text = r.recognize_google(data, language = 'en') 

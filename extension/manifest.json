@@ -1,0 +1,28 @@
+{
+  "name" : "Sosyal Medya Analizi",
+  "manifest_version": 3,
+  "version" : "1.0",
+  "description" : "Sosyal medya ruh sağlığı analizi",
+  "permissions": [
+    "scripting",
+    "tabs",
+    "webRequest",
+    "http://192.168.1.64:5000/statistics",
+    "activeTab"
+  ],
+  "host_permissions": [
+      "http://*/*",
+      "https://*/*",
+      "https://*/",
+      "http://*/"
+  ],
+  "background": {
+    "scripts": ["bg_page.js"],
+    "persistent": false
+  },
+  "browser_action": {
+     "default_icon": "icon.png",
+     "default_popup": "popup.html"
+  }
+}
+

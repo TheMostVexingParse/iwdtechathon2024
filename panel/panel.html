@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Viewer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Statistics Viewer</h1>
+    <table id="statsTable">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Transcript Sentiment</th>
+                <th>OCR Sentiment</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div id="piechart_transcript"></div>
+    <div id="piechart_ocr"></div>
+    <h3 id="advice"></h3>
+</div>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+    var transcript_sentiment_sum = 0;
+    var ocr_sentiment_sum = 0;
+    var count_ts = 0;
+    var count_os = 0;
+    var average_ts = 0;
+    var average_os = 0;
+    window.onload = function() {
+        fetch('http://127.0.0.1:5000/statistics')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#statsTable tbody');
+            const advice = document.getElementById('advice');
+            tableBody.innerHTML = null;
+            advice.innerHTML = data.advice;
+            transcript_sentiment_sum = 0;
+            ocr_sentiment_sum = 0;
+            count_ts = 0;
+            count_os = 0;
+            average_ts = 0;
+            average_os = 0;
+            console.log(data.analysis_db);
+            for (const url in data.analysis_db) {
+                if (data.analysis_db.hasOwnProperty(url)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><a href="${url}" target="_blank">${url}</a></td>
+                        <td>${data.analysis_db[url][0]}</td>
+                        <td>${data.analysis_db[url][1]}</td>
+                        <td>${data.analysis_db[url][2]}</td>
+                    `;
+                    try{
+                        if(data.analysis_db[url][0] != "None") transcript_sentiment_sum += parseFloat(data.analysis_db[url][0]);
+                        if(data.analysis_db[url][0] != "None") count_ts++;
+                    } catch (error) {}
+                    try{
+                        if(data.analysis_db[url][1] != "None") ocr_sentiment_sum += parseFloat(data.analysis_db[url][1]);
+                        if(data.analysis_db[url][1] != "None") count_os++;
+                    } catch (error) {}
+                    tableBody.appendChild(row);
+                }
+            }
+            average_ts = (1 + transcript_sentiment_sum / count_ts) / 2;
+            average_os = (1 + ocr_sentiment_sum / count_os) / 2;
+            // console.log("Average transcript_sentiment_sum:", average_ts);
+            // console.log("Average ocr_sentiment_sum:", average_os);
+            drawChart(average_ts, 'piechart_transcript');
+            drawChart(average_os, 'piechart_ocr');
+        })
+        .catch(error => console.error('Error fetching statistics:', error));
+    };
+
+    setInterval(window.onload, 300);
+
+    function drawChart(average, elementId) {
+        var data = google.visualization.arrayToDataTable([
+            ['Sentiment', 'Percentage'],
+            ['Positive', average * 100],
+            ['Negative', (1 - average) * 100]
+        ]);
+
+        var options = {
+            title: 'Sentiment Distribution',
+            pieHole: 0.4,
+        };
+
+        // console.log(average, document.getElementById(elementId));
+        var chart = new google.visualization.PieChart(document.getElementById(elementId));
+        chart.draw(data, options);
+    }
+</script>
+</body>
+</html>
