@@ -14,7 +14,7 @@ requests library installed
 
 ## Usage
 
-* First, you must upload the plugin file to Google plugins and pin it to access.
+* First, you must upload the extension file to Google plugins and pin it to access.
 
 * Secondly, you need to run main.py
   ```bash
