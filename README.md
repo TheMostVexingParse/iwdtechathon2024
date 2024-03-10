@@ -1,4 +1,4 @@
-# Teenpys Ai
+# Teenpsy Ai
 Our artificial intelligence project offers a solution that focuses on mental health by analyzing users' interaction with social media content.
 
 
