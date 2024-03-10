@@ -21,5 +21,5 @@ requests library installed
   python main.py
   ```
 
-* Finally, you need to open interface
+* Finally, you need to open the user interface from `panel/panel.html`
   
