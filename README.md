@@ -15,7 +15,9 @@ requests library installed
 ## Usage
 
 * First, you need to run main.py
-  ```python main.py```
+  ```bash
+  python main.py
+  ```
 
 * You need to get 3.id
 
