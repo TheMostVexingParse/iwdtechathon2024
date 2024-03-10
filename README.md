@@ -14,8 +14,9 @@ requests library installed
 
 ## Usage
 
-* First, you need to run main.py 
+* First, you need to run main.py
+  ```python main.py```
+
+* You need to get 3.id
 
 * 
-
-* (Checkout below image for the format of cookie ,It is Better to Use from network tab to grab cookie easily )
