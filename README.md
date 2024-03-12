@@ -2,6 +2,9 @@
 Our artificial intelligence project offers a solution that focuses on mental health by analyzing users' interaction with social media content.
 
 
+Note: The prototype has only been tested on Python 3.9.12.
+
+
 ## Prerequisites
 
 Python installed on your system
@@ -14,9 +17,9 @@ requests library installed
 
 ## Usage
 
-* First, you must upload the extension file to Google plugins and pin it to access.
+* First, you have to turn on the developer mode for chrome extensions and add the extension folder by using the "load an unpacked extension" option. It is recommended to have it pinned to make accessing easier.
 
-* Secondly, you need to run main.py
+* Secondly, you need to run main.py to initialize flask server
   ```bash
   python main.py
   ```
