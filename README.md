@@ -6,13 +6,13 @@ Note: The prototype has only been tested on Python 3.9.12.
 
 
 ## Prerequisites
-
-Python installed on your system
-requests library installed 
+You have to have:
+- Python 3.9 installed on your system
+- the requirements installed
 ```bash
   python -m pip install -r requirements.txt
-
 ```
+- the OpenAI API key on main.py line 15 replaced with your own
 
 
 ## Usage
