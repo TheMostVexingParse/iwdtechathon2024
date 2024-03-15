@@ -1,4 +1,7 @@
 import os
+import sys, os
+
+    
 import shutil
 import base64
 import threading
@@ -29,7 +32,10 @@ STATISTICS = {}
 
 STATISTICS["advice"] = ""
 
-
+def print_err(e):
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(e, exc_type, fname, exc_tb.tb_lineno)
 
 def on_init(truncate_log=True):
     # truncate log.txt
@@ -145,18 +151,19 @@ def download_from_url(url):
             with open((b"transcriptions//"+base64.b64encode((url).encode())+b".txt").decode(), 'w') as f:
                 f.write(transcribed)
             speech_sentiment_score = video_sentiment.run_sentiment_on_text(transcribed)
-        except Exception as exc: print(exc)
+        except Exception as exc: print_err(exc)
         try: ocr_sentiment_score, ocr_text = video_sentiment.run_sentiment_on_video(filename.decode())
-        except Exception as exc: print(exc)
-        try: speech_sentiment_score = speech_sentiment_score['compound']
-        except Exception as exc: print(exc)
+        except Exception as exc: print_err(exc)
+        # try: speech_sentiment_score = speech_sentiment_score['compound']
+        # except Exception as exc: print_err(exc)
         try: keywords = get_sentiment_keywords(transcribed)
-        except Exception as exc: print(exc)
+        except Exception as exc: print_err(exc)
         if ocr_text:
             nkeywords = get_sentiment_keywords(ocr_text)
             if keywords:
                 keywords += nkeywords
             else: keywords = keywords
+        if not keywords: keywords = []
         for j in range(5):
             for i in keywords[::]:
                 if ":" in i or "\n" in i or " " in i or "." in i or len(i) > 10:
@@ -174,7 +181,7 @@ def download_from_url(url):
             STATISTICS["advice"] = advice.split(":")[-1]
         else: STATISTICS["advice"] = ""
     except Exception as exc:
-        print(exc)
+        print_err(exc)
         ANALYSIS_DB[url] = (str(speech_sentiment_score), str(ocr_sentiment_score), str(keywords))
         if advice != None and advice.strip() != "":
             STATISTICS["advice"] = advice.split(":")[-1]
