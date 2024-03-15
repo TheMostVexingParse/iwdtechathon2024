@@ -1,14 +1,11 @@
 {
   "name" : "Sosyal Medya Analizi",
-  "manifest_version": 3,
+  "manifest_version": 2,
   "version" : "1.0",
   "description" : "Sosyal medya ruh sağlığı analizi",
   "permissions": [
     "scripting",
-    "tabs",
-    "webRequest",
-    "http://192.168.1.64:5000/statistics",
-    "activeTab"
+    "tabs"
   ],
   "host_permissions": [
       "http://*/*",

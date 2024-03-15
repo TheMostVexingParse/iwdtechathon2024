@@ -57,11 +57,14 @@ def run_sentiment_on_video(video_file):
         translated_text = translator.translate(cleaned_text).text
         ocr_text_final += translated_text + " "
         print(translated_text)
+        # print("="*os.get_terminal_size())
         sentiment_scores = sentiment_analyzer.polarity_scores(translated_text)
         emotions.append(-1 * sentiment_scores['compound'])
-        print(f"Negativity: {sentiment_scores['neg']}, Neutral: {sentiment_scores['neu']}, Positivity: {sentiment_scores['pos']}, Compound: {sentiment_scores['compound']}") 
+        print(f"Negativity: {sentiment_scores['neg']}, Neutral: {sentiment_scores['neu']}, Positivity: {sentiment_scores['pos']}, Compound: {sentiment_scores['compound']}")
+        # print("="*os.get_terminal_size())
     avg_emotion = sum(emotions) / len(emotions)
     print("Average Emotion:", avg_emotion)
+    # print("="*os.get_terminal_size())
     return avg_emotion, ocr_text_final
 
 

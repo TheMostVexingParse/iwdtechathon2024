@@ -12,7 +12,7 @@ import video_sentiment
 import openai
 import logging
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 app = Flask(__name__)
@@ -96,7 +96,8 @@ def get_sentiment_keywords(input_text):
             {"role": "user", 
         "content": f"I will give you a text input and I need you to extract tags related to it's psychological affects on people. Some possible tags are normal, psychopathic, offensive, racist, depressive, sad, suicidal, happy, humorous, lovely. If there is no psychological overlap, the only tag has to be normal.\n\nINPUT:{input_text}\nTAG OUTPUT:"}]
     )
-
+    print("LLM Output:", output.choices[0].message.content)
+    # print("="*os.get_terminal_size().columns)
     return output.choices[0].message.content.strip().replace(" ", "").split(",")
 
 
@@ -108,9 +109,10 @@ def get_advice(input_text):
             "content": "You are a psychiatry AI model that processes the inputs to classify amongst given tags and gives advice. Associate words such as killing, murdering with psychopathy, words such as commiting suicide with depression and such. After identifying the tag, give proper advice. Your advice has to be unique and personalized."
         },
             {"role": "user", 
-        "content": f"I will give you a text input and I need you to extract tags related to it's psychological affects on people. Some possible tags are normal, psychopathic, offensive, racist, depressive, sad, suicidal, happy, humorous, lovely. If there is no psychological overlap, the only tag has to be normal. Give proper psychological advice as if you were a psycholog using the information you have gathered.\n\nINPUT:{input_text}\nTAG OUTPUT:"}]
+        "content": f"I will give you a text input and I need you to extract tags related to it's psychological affects on people. Some possible tags are normal, psychopathic, offensive, racist, depressive, sad, suicidal, happy, humorous, lovely. If there is no psychological overlap, the only tag has to be normal. Give proper psychological advice as if you were a psycholog using the information you have gathered. Output the most realistic advice you can give.\n\nINPUT:{input_text}\nOUTPUT:"}]
     )
-
+    print("LLM Output:", output.choices[0].message.content)
+    # print("="*os.get_terminal_size().columns)
     return output.choices[0].message.content.strip()
 
 
@@ -131,48 +133,58 @@ def download_from_url(url):
     }
     filename = b"videos//"+base64.b64encode((url).encode())+b".mp4"
     downloader.download_video(url, headers, filename)
-    speech_sentiment_score = None
-    ocr_sentiment_score = None
-    ocr_text = None
+    speech_sentiment_score = 0.0
+    ocr_sentiment_score = 0.0
+    ocr_text = ""
     transcribed = ""
-    try:
-        transcribed = transcript.getTranscipt(filename.decode(), (b"sounds//"+base64.b64encode((url).encode())+b".wav").decode())
-        with open((b"transcriptions//"+base64.b64encode((url).encode())+b".txt").decode(), 'w') as f:
-            f.write(transcribed)
-        speech_sentiment_score = video_sentiment.run_sentiment_on_text(transcribed)
-    except: pass
-    try:
-        ocr_sentiment_score, ocr_text = video_sentiment.run_sentiment_on_video(filename.decode())
-    except: pass
-    try: speech_sentiment_score = speech_sentiment_score['compound']
-    except: pass
-    keywords = None
-    try: keywords = get_sentiment_keywords(transcribed)
-    except: pass
-    if ocr_text:
-        nkeywords = get_sentiment_keywords(ocr_text)
-        if keywords:
-            keywords += nkeywords
-        else: keywords = keywords
-    for j in range(5):
-        for i in keywords[::]:
-            if ":" in i or "\n" in i or " " in i or "." in i or len(i) > 10:
-                keywords.remove(i)
-    print("KEYWORDS:", keywords)
-    # try:
-    #     keywords = list(set(keywords)).join(", ")
-    # except: pass
-    conc = ""
     advice = ""
-    if transcribed: conc += transcribed + " "
-    if ocr_text: conc += ocr_text
-    if len(conc) > 10: advice = get_advice(conc)
-    ANALYSIS_DB[url] = (str(speech_sentiment_score), str(ocr_sentiment_score), str(keywords))
-    STATISTICS["advice"] = advice.split(":")[-1]
+    keywords = None
+    try:
+        try:
+            transcribed = transcript.getTranscipt(filename.decode(), (b"sounds//"+base64.b64encode((url).encode())+b".wav").decode())
+            with open((b"transcriptions//"+base64.b64encode((url).encode())+b".txt").decode(), 'w') as f:
+                f.write(transcribed)
+            speech_sentiment_score = video_sentiment.run_sentiment_on_text(transcribed)
+        except Exception as exc: print(exc)
+        try: ocr_sentiment_score, ocr_text = video_sentiment.run_sentiment_on_video(filename.decode())
+        except Exception as exc: print(exc)
+        try: speech_sentiment_score = speech_sentiment_score['compound']
+        except Exception as exc: print(exc)
+        try: keywords = get_sentiment_keywords(transcribed)
+        except Exception as exc: print(exc)
+        if ocr_text:
+            nkeywords = get_sentiment_keywords(ocr_text)
+            if keywords:
+                keywords += nkeywords
+            else: keywords = keywords
+        for j in range(5):
+            for i in keywords[::]:
+                if ":" in i or "\n" in i or " " in i or "." in i or len(i) > 10:
+                    keywords.remove(i)
+        if not keywords: keywords = ["Not Detected"]
+        keywords = ", ".join(keywords)
+        print("KEYWORDS:", keywords)
+        # # print("="*os.get_terminal_size().columns)
+        conc = ""
+        if transcribed: conc += transcribed + " "
+        if ocr_text: conc += ocr_text
+        if len(conc) > 10: advice = get_advice(conc)
+        ANALYSIS_DB[url] = (str(speech_sentiment_score), str(ocr_sentiment_score), str(keywords))
+        if advice != None and advice.strip() != "":
+            STATISTICS["advice"] = advice.split(":")[-1]
+        else: STATISTICS["advice"] = ""
+    except Exception as exc:
+        print(exc)
+        ANALYSIS_DB[url] = (str(speech_sentiment_score), str(ocr_sentiment_score), str(keywords))
+        if advice != None and advice.strip() != "":
+            STATISTICS["advice"] = advice.split(":")[-1]
+        else: STATISTICS["advice"] = ""
     pprint(ANALYSIS_DB)
     
+    # print("="*os.get_terminal_size().columns)
     print("Speech sentiment score: ", speech_sentiment_score)
     print("OCR sentiment score: ", ocr_sentiment_score)
+    # print("="*os.get_terminal_size().columns)
         
 
 @app.route('/', methods=['GET', 'POST'])
@@ -180,6 +192,7 @@ def index():
     data = request.form['curr_url']
     resp = Response("OK", status=200, mimetype='text/plain')
     print(data)
+    # print("="*os.get_terminal_size().columns)
     if ONLY_RECORD_INSTAGRAM and not 'instagram.com' in data: return resp
     if not data in URLS:
         add_url(data, LOG_FILE)
